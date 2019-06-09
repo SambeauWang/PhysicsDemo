@@ -1,4 +1,6 @@
 use super::Particle;
+use super::Application;
+use super::TimingData;
 
 #[derive(Debug, PartialEq)]
 enum ShotType{
@@ -19,7 +21,7 @@ impl Default for ShotType{
 struct AmmoRound{
     pub particle: Particle,
     pub shot_type: ShotType,
-    pub start_time: u32,
+    pub start_time: u128,
 }
 
 // AmmoRound render
@@ -53,9 +55,37 @@ impl BallisticDemo{
 
             // set time
             item.particle.set_positionXYZ(0.0, 1.5, 0.0);
+            item.start_time = TimingData::get().lock().unwrap().lastFrameTimestamp;
             item.shot_type = ShotType::UNUSED;
 
             item.particle.clear_accumulator()
         }
     }
 }
+
+impl Application for BallisticDemo{
+    fn handle_key(&self, virtual_keycode: Option<glium::glutin::VirtualKeyCode>, closed: &mut bool){
+
+    }
+    fn update(&mut self){
+        let time_data = TimingData::get().lock().unwrap();
+        let duration = time_data.lastFrameDuration;
+        if duration < 0 {
+            return;
+        }
+
+        for i in &mut self.ammo{
+            if i.shot_type != ShotType::UNUSED{
+                i.particle.integrate(duration as f32);
+
+                if i.particle.get_position().y < 0.0 || i.start_time + 5000 < time_data.lastFrameTimestamp || i.particle.get_position().z > 200.0 {
+                    i.shot_type = ShotType::UNUSED;
+                }
+            }
+        }
+    }
+    fn draw(&mut self){
+
+    }
+}
+
