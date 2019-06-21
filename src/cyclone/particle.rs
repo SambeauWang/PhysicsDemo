@@ -70,7 +70,7 @@ impl Particle{
         self.position = position;
     }
 
-    pub fn get_position(self) -> Vector3{
+    pub fn get_position(&self) -> Vector3{
         self.position.clone()
     }
 

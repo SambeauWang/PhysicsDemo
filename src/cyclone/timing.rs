@@ -68,7 +68,7 @@ impl TimingData{
         self.lastFrameClockstamp = this_clock;
 
         if self.frameNumber > 1{
-            if (self.averageFrameDuration <= 0.0){
+            if self.averageFrameDuration <= 0.0{
                 self.averageFrameDuration = self.lastFrameDuration as f64;
             }else{
                 self.averageFrameDuration *= 0.99;
