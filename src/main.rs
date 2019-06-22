@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate glium;
+extern crate glium_shapes;
 
 mod cyclone;
 use cyclone::Application;

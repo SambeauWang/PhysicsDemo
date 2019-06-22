@@ -1,6 +1,8 @@
 use glium::Surface;
 use cgmath::{Matrix4, Point3, Vector3};
 use cgmath::conv::*;
+use glium_shapes;
+
 
 #[derive(Copy, Clone)]
 struct Vertex{
@@ -35,7 +37,8 @@ impl App{
     }
 
     pub fn new(events_loop: &glium::glutin::EventsLoop) -> App{
-        let wb = glium::glutin::WindowBuilder::new();
+        let wb = glium::glutin::WindowBuilder::new().with_title("Example Viewer");
+        let tdisplay = glium::glutin::WindowBuilder::new().with_title("Example Viewer").build().expect("Failed to build glium display");
         let cb = glium::glutin::ContextBuilder::new();
         let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
@@ -46,6 +49,8 @@ impl App{
         let shape = vec![vertex1, vertex2, vertex3];
         let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
         let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+
+        let shape = glium_shapes::sphere::SphereBuilder::new().scale(0.1, 0.1, 0.1).translate(0.0, 1.5, 0.0).build(&wb).expect("Failed to build sphere");
 
         // shader
         let vertex_shader_src = r#"
@@ -66,8 +71,8 @@ impl App{
         let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
         let app = App{
             display:display,
-            vertex_buffer:vertex_buffer,
-            indices:indices,
+            vertex_buffer: shape,
+            indices: indices,
             program:program
         };
 
