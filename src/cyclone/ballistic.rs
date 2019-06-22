@@ -2,6 +2,9 @@ use super::Particle;
 use super::Application;
 use super::TimingData;
 use super::App;
+use super::sphere;
+use glium::Surface;
+use cgmath::{Matrix4, Point3, Vector3, PerspectiveFov, Rad};
 
 #[derive(Debug, PartialEq)]
 enum ShotType{
@@ -37,15 +40,20 @@ impl Default for AmmoRound{
 
 // AmmoRound render
 impl AmmoRound{
-    fn render(){
-
+    pub fn render(&mut self, target: &mut glium::Frame){
+        // view matrix
+        let model_matrix = Matrix4::from_translation(Vector3{
+            x: self.particle.get_position().x,
+            y: self.particle.get_position().y,
+            z: self.particle.get_position().z,
+        });
+        App::get().lock().unwrap().draw_sphere(target, model_matrix*Matrix4::from_scale(0.1), None);
     }
 }
 
 pub struct BallisticDemo{
     ammo: Vec<AmmoRound>,
     cur_shot_type: ShotType,
-    app: App,
 }
 
 impl BallisticDemo{
@@ -75,11 +83,10 @@ impl BallisticDemo{
 }
 
 impl Application for BallisticDemo{
-    fn new(events_loop: &glium::glutin::EventsLoop) -> BallisticDemo{
+    fn new() -> BallisticDemo{
         BallisticDemo{
             ammo: Default::default(),
             cur_shot_type: ShotType::UNUSED,
-            app: App::new(&events_loop),
         }
     }
     
@@ -95,6 +102,7 @@ impl Application for BallisticDemo{
             _ => ()
         }
     }
+
     fn update(&mut self){
         let duration = TimingData::get().lock().unwrap().lastFrameDuration as f32 * 0.001;
         if duration <= 0.0 {
@@ -116,16 +124,18 @@ impl Application for BallisticDemo{
         }
     }
     fn draw(&mut self){
-        self.app.draw();
+        let mut target = App::get().lock().unwrap().begin_draw();
 
         for i in &mut self.ammo{
             match i.shot_type {
                 ShotType::UNUSED => (),
                 _ => {
-                    // println!("{} {}", i.particle.get_position().y, i.particle.get_position().z)
+                    i.render(&mut target);
                 },
             }
         }
+
+        App::get().lock().unwrap().end_draw(target);
     }
 }
 

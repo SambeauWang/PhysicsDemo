@@ -23,6 +23,7 @@ impl Particle{
 
         let mut result_acc = self.acceleration.clone();
         result_acc.addScaledVector(self.force_accum, self.inverse_mass);
+
         self.velocity.addScaledVector(result_acc, duration);
         self.velocity *= self.damping.powf(duration);
 

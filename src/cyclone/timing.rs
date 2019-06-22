@@ -25,8 +25,8 @@ impl TimingData{
         static INIT: Once = Once::new();
 
         unsafe{
-            let val = TimingData::new();
             INIT.call_once(|| {
+                let val = TimingData::new();
                 VAL = mem::transmute(Box::new(Arc::new(Mutex::new(val))));
             });
 
